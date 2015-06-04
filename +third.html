@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <title>test</title>
+    <!-- <link rel="stylesheet" type="text/css" href="test.css"> -->
+</head>
+<body>	
+	<!-- <p class="test_p" style="background-color:yellow">sfgsdfsdf
+		<img class="test_img" src="img/rank.png" />
+	kjbnkjsd。</p> -->
+	<form id="myForm" action="#" method="POST">
+		<input id="in1" type="text" name="a" />
+		<input id="in2" type="text" name="b" />
+		<input id="bu" type="button" value="button" />
+		<input id="sub" type="submit" />
+		<a id="link" href="http://www.baidu.com">link</a>
+	</form>
+
+</body>
+<script type= "text/javascript">
+	var cancelHandler = function(e){
+    	var e = e||window.event;
+    	// alert(e.returnValue);
+    	if(e.preventDefault)e.preventDefault();//标准
+    	else{
+    		e.returnValue = false;//IE
+    	}    	
+    	// alert(e.returnValue);
+    	return false;
+    }
+	var clickEvent = function(e){
+		var e = e||window.event;
+		var str = "事件类型："+e.type+'####';
+		console.log(str);
+		console.log("this："+this);
+		console.log(this.id);
+		console.log("target："+e.target||e.srcElement)
+		var target = e.target||e.srcElement;
+		console.log(target.id);
+		// return false;
+		// alert(e.returnValue);
+		// e.returnValue = false;
+		// alert(e.returnValue);
+		// e.preventDefault();
+		cancelHandler(e);
+	}
+	var myForm = document.getElementById('myForm');
+	var in1 = document.getElementById('in1');
+	var in2 = document.getElementById('in2');
+	var link = document.getElementById('link');
+	var sub = document.getElementById('sub');
+	var bu = document.getElementById('bu');
+
+	// myForm.onsubmit = clickEvent;
+	// myForm.onclick = clickEvent;
+	// in1.onclick = clickEvent;
+	// in2.onclick = clickEvent;
+	// bu.onclick = function(){
+	// 	alert('bu');
+	// 	if(myForm.onsubmit()!=false){
+	// 		// alert(1);
+	// 		myForm.submit();
+	// 	};
+	// };
+	// myForm.onsubmit = function(){
+	// 	alert('onsub');
+	// 	return false;
+	// };
+	// myForm.addEventListener('click',clickEvent,false);
+	// in1.addEventListener('click',clickEvent,false);//没有返回值
+	// in2.addEventListener('click',clickEvent,false);
+
+	var bind=function(target,type,listener,useCapture){
+		// var useCapture = useCapture?useCapture:false;
+        var useCapture = useCapture||false;
+        if(document.addEventListener){
+            target.addEventListener(type,listener,useCapture);
+        }
+        else{
+            type='on'+type;
+            target.attachEvent(type,listener);
+            // target.attachEvent(type,function(e){
+            // 	return listener.call(target,e);
+            // });//this是全局对象,改变this指向
+        }
+    };
+    // bind(myForm,'submit',clickEvent);
+    // bind(myForm,'click',clickEvent);
+    // bind(in1,'click',clickEvent);
+    // bind(in2,'click',clickEvent);
+    function foo(form){  
+	    //IE fire event   
+	    if (form.fireEvent) {  
+	      result = form.fireEvent('onsubmit');  
+	    //DOM2 fire event  
+	    } else if (document.createEvent) {  
+	      var ev = document.createEvent('HTMLEvents');  
+	      ev.initEvent('submit', false, true);  
+	      form.dispatchEvent(ev);  
+	    }   
+   	}  
+   	// bind(bu,'click',function(){
+   	// 	alert('bu');
+   	// 	foo(myForm);
+   	// 	// myForm.submit();
+   	// });
+   	// bind(myForm,'submit',function(){
+   	// 	alert('onsub');
+   	// 	myForm.submit();
+   	// });
+	// var out = false;
+	// bind(myForm,'mouseout',function(e){
+	// 	e = e||window.event;
+	// 	target = e.target||e.srcElement;
+	// 	// console.log(this.id);
+	// 	// console.log(target.id);
+	// 	if(this === target){
+	// 		out = true;
+	// 		// console.log('mouseout');
+	// 	}
+	// 	// out = true;
+	// 	// console.log('out');
+	// })
+	// bind(myForm,'mouseover',function(e){
+	// 	e = e||window.event;
+	// 	target = e.target||e.srcElement;
+	// 	// console.log(this.id);
+	// 	// console.log(target.id);
+	// 	// console.log('over');
+	// 	if(this !== target){
+	// 		out = false;
+	// 	}
+	// })
+	// bind(document,'mouseover',function(e){
+	// 	if(out){
+	// 		console.log('mouseleave');
+	// 		out = false;
+	// 	}
+	// })
+	var handler = function(respond){
+		console.log(respond.value);
+	}
+</script>
+<script type= "text/javascript" src="http://localhost/test/php/testPhp.php?jsonp=handler"></script>
+
+</html>
