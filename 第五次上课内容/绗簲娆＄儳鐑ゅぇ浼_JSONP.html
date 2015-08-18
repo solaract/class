@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <input id="baidu" type="text"/>
+    <ul class="lenovo"></ul>
+</body>
+<script>
+    window.onload = function(){
+        var text = document.getElementById('baidu'),
+            cScript = null;
+
+
+        text.onkeyup = function(){
+            cScript = document.createElement('script');
+
+            cScript.src = 'http://image.baidu.com/i?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result&queryWord='+ +'&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0&word=%E7%9A%AE%E5%8D%A1%E4%B8%98&s=&se=1&tab=&width=&height=&face=0&istype=2&qc=&nc=1&fr=%26fr%3D&pn=60&rn=60&1431851968143=';
+            document.body.appendChild(cScript);
+        };
+
+    };
+
+    function baidu(json){
+        for(var i = 0; i < json['s'].length; i++){
+            console.log(json['s'][i])
+        }
+    }
+</script>
+</html>

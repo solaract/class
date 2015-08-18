@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        #outer{ width:400px; height:400px; background-color:red; margin:10px auto; position:relative;}
+        #inner{ width:100px; height:100px; background-color:yellow; position:absolute; left:150px; top:150px;}
+    </style>
+</head>
+<body>
+<body>
+　　<div id="outer">
+    　　　　<div id="inner">
+    　　　　</div>
+    　　</div>
+<script>
+    var oOuter = document.getElementById('outer');
+    var oInner =document.getElementById('inner');
+
+    //现在的浏览器
+    oOuter.onmouseover = function(){
+        this.style.background = 'blue';
+    };
+
+    oOuter.onmouseout = function(){
+        this.style.background = 'red';
+    };
+
+    oInner.onmouseover = function(e){
+        alert(1);
+    };
+
+</script>
+</body>
+</body>
+</html>

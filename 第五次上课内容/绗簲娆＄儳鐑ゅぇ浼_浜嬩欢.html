@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+        #oDiv1{
+            width:200px;
+            height:200px;
+            overflow: hidden;
+            background: red;
+        }
+        #oDiv1 div{
+            width:100px;
+            height:100px;
+            margin-left:50px;
+            margin-top:50px;
+            background: blue;
+        }
+    </style>
+</head>
+<body>
+<div id="oDiv1">
+    <div id="oDiv2"></div>
+</div>
+
+<script>
+var oDiv1 = document.getElementById("oDiv1");
+var oDiv2 = document.getElementById("oDiv2");
+
+addEvent(oDiv2,'click',function(ev){
+    console.log(2);
+    ev.stopPropagation();
+});
+
+//事件注册
+function addEvent(target,eventName,callback,useCapture){
+
+    //压缩函数的空格
+    var fnStr = callback.toString().replace(/\s+/g,'');
+
+    if(!target[eventName+"event"]){
+        target[eventName+"event"] = {};
+    }
+
+    //存储事件的函数到target[eventName+'event'][fnStr]中
+    target[eventName+"event"][fnStr] = handler;
+
+    useCapture = useCapture || false;
+
+    //高设上的事件注册简单兼容
+    if(target.addEventListener){
+        target.addEventListener(eventName,handler,useCapture);
+    }else if(target.attachEvent){
+        target.attachEvent("on"+eventName,handler);
+    }else{
+        target["on"+eventName] = handler;
+    }
+
+    //处理传入的参数ev
+    function handler(event){
+        //ie下的事件名需要window.event
+        var ev = event || window.event,
+            stopPropagation = ev.stopPropagation,
+            preventDefault = ev.preventDefault;
+
+        //获取触发事件的对象 ie下的ev.srcElement相当于其他浏览器下ev.target
+        ev.target = ev.target || ev.srcElement;
+        //获取当前事件活动的对象(捕获或者冒泡阶段)
+        ev.currentTarget = ev.currentTarget || target;
+        //取消冒泡的处理
+        ev.stopPropagation = function(){
+            if(stopPropagation){
+                stopPropagation.call(event);
+            }else{
+                ev.cancelBubble = true;
+            }
+        };
+        //取消默认事件的处理
+        ev.preventDefault = function(){
+            if(preventDefault){
+                preventDefault.call(event);
+            }else{
+                ev.returnValue = false;
+            }
+        };
+
+        //执行callback函数，并且this指向，同时用flag接收其返回值
+        var flag = callback.call(target,ev);
+
+        //处理flag接收到的返回着为false的情况
+        if(flag === false){
+            ev.stopPropagation();
+            ev.preventDefault();
+        }
+    }
+}
+
+//事件取绑（匿名函数）
+function removeEvent(target,eventName,callback,useCapture){
+    //压缩空格
+    var fnStr = callback.toString().replace(/\s+/g,''),
+            handler;
+
+    if(!target[eventName+"event"]){
+        return;
+    }
+
+    //获取到存储的函数
+    handler = target[eventName+"event"][fnStr];
+    useCapture = useCapture || false;
+
+    if(target.removeEventListener){
+        target.removeEventListener(eventName,handler,useCapture);
+    }else if(target.detachEvent){
+        target.detachEvent("on"+eventName,handler);
+    }else{
+        target["on"+eventName] = null;
+    }
+}
+
+//取消所有事件函数（对事件取绑的调用）
+function removeAll(target,eventName){
+    var handlers = target[eventName+"event"];
+
+    for(var key in handlers){
+        if(handlers.hasOwnProperty(key)){
+            if(target.removeEventListener){
+                target.removeEventListener(eventName,handlers[key],false);
+            }else if(target.detachEvent){
+                target.detachEvent("on"+eventName,handlers[key]);
+            }else{
+                target["on"+eventName] = null;
+            }
+        }
+    }
+}
+
+//事件代理 target冒泡时触发的标签 delgate代理的事件
+
+//详谈一下这个吧，首先，事件代理的原理，就是通过冒泡来触发其父元素上注册的事件
+//比如我在ul注册了click事件，当我点击ul下面的li的时候，会冒泡到ul，并执行ul
+//上面的函数。同时，在上述情景下，我们这里其实只是想对ul进行click的事件绑定，
+//所以，我们并不希望当我们点击ul的时候，会执行函数，因此，我们在下面的handler
+//中，判断当前触发事件的对象是否在我们需要代理的对象数组中，如果是，才调用事件
+//函数。这样也就可以避免在上诉情景下，点击ul也会执行函数的情况了。
+function live(target,delgate,eventName,callback){
+    //被代理的对象（即target下层的元素），将其转化为数组
+    delgate = makeArray(delgate);
+
+
+    //对target进行事件注册，若满足下面handler的代理条件，冒泡过程中则会执行事件函数
+    addEvent(target,eventName,handler);
+
+    //对ev的处理
+    function handler(ev){
+        //获取到当前触发事件的对象(这里直接写ev.target的原因是由于在事件注册中我们已经对其进行了处理，详见62与67行)
+        var target = ev.target;
+
+        //判断当前触发事件的对象是否在我们需要代理的对象数组中，如果是，则调用，并用call改变this指向
+        if(inArray(delgate,target) != -1){
+            return callback.call(target,ev);
+        }
+
+    }
+}
+
+//获取在数组中的位置
+function inArray(arr,obj){
+    if(arr.indexOf){
+        return arr.indexOf(obj);
+    }else{
+        for(var i = 0,len = arr.length; i < len; i++){
+            if(arr[i] == obj){
+                return i;
+            }
+        }
+    }
+
+    return -1;
+}
+
+//将对象转变成数组
+function makeArray(obj){
+    var tmp = [];
+
+    if(obj && obj.length && obj[0] != null && typeof obj != "string"){
+        if(!is(obj,"Array")){
+            for(var i = 0,len = obj.length; i < len; i++){
+                tmp.push(obj[i]);
+            }
+        }else{
+            tmp = obj;
+        }
+    }else{
+        tmp = [obj];
+    }
+
+    return tmp;
+}
+
+//类型判断
+function is(obj,type){
+    return Object.prototype.toString.call(obj) == "[object "+type+"]";
+}
+
+//blur的兼容
+function blur(target,callback){
+    if(target.addEventListener){
+        addEvent(target,"blur",callback,true);
+    }else{
+        addEvent(target,"focusout",callback);
+    }
+}
+
+//focus的兼容
+function focus(target,callback){
+    if(target.addEventListener){
+        addEvent(target,"focus",callback,true);
+    }else{
+        addEvent(target,"focusin",callback);
+    }
+}
+
+//mouseenter的模拟
+function mouseenter(target,callback){
+    if(target.addEventListener){
+        addEvent(target,"mouseover",function(ev){
+            var target = ev.target,
+                    fromEle = ev.relatedTarget;
+
+            if(fromEle.contains(target) && this == target){
+                return callback.call(target,ev);
+            }
+        });
+    }else{
+        addEvent(target,"mouseenter",callback);
+    }
+}
+
+//mouseleave的模拟
+function mouseleave(target,callback){
+    if(target.addEventListener){
+        addEvent(target,"mouseout",function(ev){
+            var target = ev.target,
+                    fromEle = ev.relatedTarget;
+
+            if(fromEle.contains(target) && this == target){
+                return callback.call(target,ev);
+            }
+        })
+    }else{
+        addEvent(target,"mouseleave",callback);
+    }
+}
+
+</script>
+
+</body>
+</html>

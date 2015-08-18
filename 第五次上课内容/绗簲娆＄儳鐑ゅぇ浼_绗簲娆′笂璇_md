@@ -1,0 +1,79 @@
+##第五次上课
+---
+###1.事件
++ 事件的冒泡与捕获
+	- addEventListener(event,function,(true/false))
+	attachEvent(‘on’+event,function)	IE下，只支持冒泡
+	- 事件发生顺序
+	- 事件解绑
+	
+		removeEventListener(event,function,true/flase)；
+		dettachEvent(‘on’+event,function)	IE下
+ 	- 取消冒泡
+ 	
+ 		stopPropagation()
+ 	- 不支持冒泡的
+ 	
+ 		blur 		
+ 		focus 		
+ 		load 		
+ 		unload 		
+ 		mouseenter
+ 		mouseleave 	
+ 		注意: mouseover与mouseleave支持冒泡
+ 			 		
++ 事件代理
+	- 什么是事件代理
+	- 使用场景
+	- 事件代理的原理
+		+ 事件的冒泡
+	- 实现方式
+		
+		见第五次上课.js
+			
++ submit事件模拟
+	form.submit();
++ mouseleave与mouseenter模拟
+	- 屌屌的ie
+	- 使用mouseout与mouseover模拟
+
+###2.正则表达式
++ 语法
++ exec,match,test,replace
++ 匹配练习
+
+###3.AJAX
++ XMLHTTPReques
++ Content-Type
++ POST GET PUT DELETE
+
+###4.跨域
++ 同源策略:
+
+	阻止从一个域上加载的脚本获取或操作另一个域上的文档属性。也就是说，受到请求的URL的域必须与当前Web页面的域相同、相同端口。这意味着浏览器隔离来自不同源的内容，以防止它们之间的操作。
+
++ CORS（跨源资源共享）:
+
+	服务器端通过改变头的方式，来允许跨域。
++ JSONP
+
+	- JSONP原理	
+	- 来写下百度的带联想搜索框吧
+	
++ document.domain
+
+	必须是同样的基础域名才可以用于跨域
+	比如aaa.hehe.com 和 bbb.hehe.com
+	将其的document.domain都改成hehe.com就可以进行操作了
+	
+	
+###5.CSS移动端方向
++ 分辨率及android碎片化问题
++ iphone R屏问题
++ iphone字体问题
++ 并不会讲wp
+
+###6.简单的移动端瀑布流(高性能……也许吧)
++ 思路
++ 布局问题
++ 性能问题
