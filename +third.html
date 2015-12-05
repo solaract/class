@@ -141,6 +141,103 @@
 	var handler = function(respond){
 		console.log(respond.value);
 	}
+	//事件注册
+    function addEvent(target,eventName,callback,useCapture){
+
+        //压缩函数的空格
+        var fnStr = callback.toString().replace(/\s+/g,'');
+
+        if(!target[eventName+"event"]){
+            target[eventName+"event"] = {};
+        }
+
+        //存储事件的函数到target[eventName+'event'][fnStr]中
+        target[eventName+"event"][fnStr] = handler;
+
+        useCapture = useCapture || false;
+
+        //更多事件兼容
+        var events = {
+            mouseenter:'mouseover',
+            mouseover:'mouseleave',
+            default:eventName
+        };
+
+        var event_name = eventName in events?events[eventName]:events['default'];
+        //高设上的事件注册简单兼容
+        if(target.addEventListener){
+            target.addEventListener(event_name,handler,useCapture);
+        }else if(target.attachEvent){
+            target.attachEvent("on"+event_name,handler);
+        }else{
+            target["on"+event_name] = handler;
+        }
+
+        //处理传入的参数ev
+        function handler(event){
+            //ie下的事件名需要window.event
+            var ev = event || window.event,
+                stopPropagation = ev.stopPropagation,
+                preventDefault = ev.preventDefault,
+                flag = true;
+
+            //获取触发事件前所在元素（鼠标）
+            var from = ev.relatedTarget||ev.fromElement;
+            //获取触发事件的对象 ie下的ev.srcElement相当于其他浏览器下ev.target
+            ev.target = ev.target || ev.srcElement;
+            //获取当前事件活动的对象(捕获或者冒泡阶段)
+            ev.currentTarget = ev.currentTarget || target;
+            //取消冒泡的处理
+            ev.stopPropagation = function(){
+                if(stopPropagation){
+                    stopPropagation.call(event);
+                }else{
+                    ev.cancelBubble = true;
+                }
+            };
+            //取消默认事件的处理
+            ev.preventDefault = function(){
+                if(preventDefault){
+                    preventDefault.call(event);
+                }else{
+                    ev.returnValue = false;
+                }
+            };
+
+            if(eventName === 'mouseenter'||eventName === 'mouseleave'){
+                if(contains(this,ev.target)||contains(this,from)){
+                    flag = false;
+                }
+                else{
+                    flag = callback.call(target,ev);
+                }
+            }
+            else{
+                //执行callback函数，并且this指向，同时用flag接收其返回值
+                flag = callback.call(target,ev);
+            }
+
+
+            //处理flag接收到的返回着为false的情况
+            if(flag === false){
+                ev.stopPropagation();
+                ev.preventDefault();
+            }
+        }
+    }
+    //target是否为parent的后代元素
+    function contains(parent,target){
+        if(document.defaultView){
+            return !!( parent.compareDocumentPosition(target) & 16 );
+        }
+        else{
+            return parent != target && parent.contains(target);
+        }
+    }
+    addEvent(myForm,'mouseleave',function(e){
+    	console.log(1);
+    })
+    
 </script>
 <script type= "text/javascript" src="http://localhost/test/php/testPhp.php?jsonp=handler"></script>
 
